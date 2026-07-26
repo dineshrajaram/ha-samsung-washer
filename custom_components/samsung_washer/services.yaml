@@ -1,0 +1,54 @@
+start_cycle:
+  name: Start Cycle
+  description: >
+    Start the washing machine with a specific cycle and settings.
+    If cycle is omitted, uses the current value of the Cycle selector entity.
+  fields:
+    cycle:
+      name: Cycle
+      description: Which cycle to run.
+      required: false
+      selector:
+        select:
+          options:
+            - "All-in-one"
+            - "Drying only"
+            - "Quick 15"
+    temp:
+      name: Water Temperature
+      description: Wash temperature (all-in-one only).
+      required: false
+      selector:
+        select:
+          options: ["cold", "20", "30", "40", "60", "90"]
+    spin:
+      name: Spin Speed
+      description: Spin speed in RPM (all-in-one only).
+      required: false
+      selector:
+        select:
+          options: ["noSpin", "400", "800", "1000", "1200", "1400"]
+    rinse:
+      name: Rinse Cycles
+      description: Number of rinse cycles (all-in-one only).
+      required: false
+      selector:
+        select:
+          options: ["0", "1", "2", "3", "4", "5"]
+    dry_level:
+      name: Dry Level
+      description: >
+        Drying level. For all-in-one: none skips drying.
+        For drying-only: cupboard/30/60/90 minutes.
+      required: false
+      selector:
+        select:
+          options: ["none", "cupboard", "30", "60", "90"]
+
+stop:
+  name: Stop
+  description: Stop / cancel the running cycle.
+
+pause:
+  name: Pause
+  description: Pause the running cycle.

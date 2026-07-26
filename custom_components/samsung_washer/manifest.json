@@ -1,0 +1,12 @@
+{
+  "domain": "samsung_washer",
+  "name": "Samsung Washer",
+  "codeowners": ["@dineshrajaram"],
+  "config_flow": true,
+  "dependencies": ["application_credentials"],
+  "documentation": "https://github.com/dineshrajaram/ha-samsung-washer",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/dineshrajaram/ha-samsung-washer/issues",
+  "requirements": [],
+  "version": "1.1.0"
+}

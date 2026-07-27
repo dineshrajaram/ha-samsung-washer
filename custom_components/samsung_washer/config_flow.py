@@ -41,6 +41,12 @@ class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
     """OAuth2 config flow — redirects to SmartThings, then asks for device."""
 
     VERSION = 1
+    DOMAIN = DOMAIN
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._oauth_data: dict = {}
+        self._discovered: dict[str, str] = {}
 
     @property
     def logger(self) -> logging.Logger:

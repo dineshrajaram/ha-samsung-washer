@@ -1,7 +1,8 @@
-"""Config flow for Samsung Washer — OAuth2 via SmartThings."""
+"""Config flow for Samsung Washer — direct token entry (no OAuth redirect)."""
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 import aiohttp
@@ -9,7 +10,6 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.config_entry_oauth2_flow import (
     AbstractOAuth2FlowHandler,
     AbstractOAuth2Implementation,
@@ -33,7 +33,6 @@ from .const import (
     DEFAULT_SPIN,
     DEFAULT_TEMP,
     DOMAIN,
-    OAUTH_SCOPES,
     VALID_DRY_LEVELS_AIO,
     VALID_RINSES,
     VALID_SPINS,
@@ -42,93 +41,80 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-_TOKEN_URL     = "https://api.smartthings.com/oauth/token"
-_AUTHORIZE_URL = "https://api.smartthings.com/oauth/authorize"
-_REDIRECT_URI  = "https://my.home-assistant.io/redirect/oauth"
+_TOKEN_URL = "https://api.smartthings.com/oauth/token"
+_DEVICES_URL = "https://api.smartthings.com/v1/devices"
 
 
-class SmartThingsOAuth2Implementation(LocalOAuth2Implementation):
+class SmartThingsOAuth2Implementation(AbstractOAuth2Implementation):
     """
-    Custom token exchange — client_id only in Basic Auth, not in body.
-
-    SmartThings rejects requests that include client_id in both the
-    Authorization header and the form body. Standard HA LocalOAuth2Implementation
-    sends it in both. This class sends it only in Basic Auth.
+    OAuth2 implementation that stores client credentials and handles
+    token refresh. No OAuth redirect — tokens are pasted directly.
     """
 
     def __init__(self, hass: HomeAssistant, client_id: str, client_secret: str) -> None:
-        super().__init__(
-            hass, DOMAIN, client_id, client_secret, _AUTHORIZE_URL, _TOKEN_URL
-        )
+        self._hass          = hass
+        self._client_id     = client_id
+        self._client_secret = client_secret
 
     @property
     def name(self) -> str:
         return "SmartThings"
 
     @property
-    def redirect_uri(self) -> str:
-        return _REDIRECT_URI
+    def domain(self) -> str:
+        return DOMAIN
 
     @property
-    def extra_authorize_data(self) -> dict[str, str]:
-        return {"scope": OAUTH_SCOPES}
+    def extra_authorize_data(self) -> dict:
+        return {}
 
-    async def _async_resolve_auth_code(
-        self, code: str, redirect_uri: str
-    ) -> dict[str, Any]:
-        """Exchange auth code — client_id in Basic Auth only, no body duplication."""
-        import base64
-        credentials = base64.b64encode(
-            f"{self.client_id}:{self.client_secret}".encode("ascii")
-        ).decode("ascii")
+    async def async_generate_authorize_url(self, flow_id: str) -> str:
+        raise NotImplementedError("Direct token entry; no OAuth redirect")
 
-        session = aiohttp_client.async_get_clientsession(self.hass)
-        resp = await session.post(
-            _TOKEN_URL,
-            data={
-                "grant_type":   "authorization_code",
-                "code":         code,
-                "redirect_uri": redirect_uri,
-            },
-            headers={
-                "Authorization": f"Basic {credentials}",
-                "Content-Type":  "application/x-www-form-urlencoded",
-            },
-        )
-        resp.raise_for_status()
-        return await resp.json()
+    async def async_resolve_external_data(self, external_data: Any) -> dict:
+        raise NotImplementedError("Direct token entry; no OAuth redirect")
 
     async def async_refresh_token(self, token: dict) -> dict:
-        """Refresh access token — same Basic Auth pattern."""
+        """Refresh the access token using Basic Auth — matches Insomnia."""
         import base64
         credentials = base64.b64encode(
-            f"{self.client_id}:{self.client_secret}".encode("ascii")
+            f"{self._client_id}:{self._client_secret}".encode("ascii")
         ).decode("ascii")
 
-        session = aiohttp_client.async_get_clientsession(self.hass)
-        resp = await session.post(
-            _TOKEN_URL,
-            data={
-                "grant_type":    "refresh_token",
-                "refresh_token": token["refresh_token"],
-            },
-            headers={
-                "Authorization": f"Basic {credentials}",
-                "Content-Type":  "application/x-www-form-urlencoded",
-            },
-        )
-        resp.raise_for_status()
-        new_token = await resp.json()
-        return {**token, **new_token}
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                _TOKEN_URL,
+                data={
+                    "grant_type":    "refresh_token",
+                    "refresh_token": token["refresh_token"],
+                },
+                headers={
+                    "Authorization": f"Basic {credentials}",
+                    "Content-Type":  "application/x-www-form-urlencoded",
+                },
+            ) as resp:
+                resp.raise_for_status()
+                new_token = await resp.json()
+
+        return {
+            **token,
+            **new_token,
+            "expires_at": time.time() + new_token.get("expires_in", 86399),
+        }
 
 
 # ── Config flow ───────────────────────────────────────────────────────────────
 
+_CONF_ACCESS_TOKEN  = "access_token"
+_CONF_REFRESH_TOKEN = "refresh_token"
+
+
 class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
     """
-    Two-step flow:
-      1. User enters client_id + client_secret
-      2. OAuth redirect to SmartThings → device selection
+    Config flow:
+      Step 1  — enter client_id + client_secret
+      Step 2  — paste access_token + refresh_token (obtained from Insomnia / SmartThings)
+      Step 3  — confirm device (auto-discovered or manually entered)
     """
 
     VERSION = 1
@@ -138,18 +124,15 @@ class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
         super().__init__()
         self._client_id:     str = ""
         self._client_secret: str = ""
-        self._oauth_data:    dict = {}
+        self._access_token:  str = ""
+        self._refresh_token: str = ""
         self._discovered:    dict[str, str] = {}
 
     @property
     def logger(self) -> logging.Logger:
         return _LOGGER
 
-    @property
-    def extra_authorize_data(self) -> dict[str, str]:
-        return {"scope": OAUTH_SCOPES}
-
-    # ── Step 1: collect credentials ───────────────────────────────────────────
+    # ── Step 1: client credentials ────────────────────────────────────────────
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -159,16 +142,7 @@ class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
         if user_input is not None:
             self._client_id     = user_input[CONF_CLIENT_ID].strip()
             self._client_secret = user_input[CONF_CLIENT_SECRET].strip()
-
-            # Register our implementation so pick_implementation finds it
-            async_register_implementation(
-                self.hass,
-                DOMAIN,
-                SmartThingsOAuth2Implementation(
-                    self.hass, self._client_id, self._client_secret
-                ),
-            )
-            return await self.async_step_pick_implementation()
+            return await self.async_step_tokens()
 
         return self.async_show_form(
             step_id="user",
@@ -179,31 +153,49 @@ class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
             errors=errors,
         )
 
-    # ── Step 2: after OAuth completes → discover device ───────────────────────
+    # ── Step 2: paste tokens ──────────────────────────────────────────────────
 
-    async def async_oauth_create_entry(self, data: dict[str, Any]) -> dict:
-        self._oauth_data = {
-            **data,
-            CONF_CLIENT_ID:     self._client_id,
-            CONF_CLIENT_SECRET: self._client_secret,
-        }
-        token = data["token"]["access_token"]
+    async def async_step_tokens(
+        self, user_input: dict[str, Any] | None = None
+    ) -> dict:
+        """Ask for access_token + refresh_token obtained from SmartThings."""
+        errors: dict[str, str] = {}
 
-        try:
-            devices = await self._fetch_washers(token)
-        except Exception:
-            _LOGGER.exception("Device discovery failed")
-            devices = []
+        if user_input is not None:
+            self._access_token  = user_input[_CONF_ACCESS_TOKEN].strip()
+            self._refresh_token = user_input[_CONF_REFRESH_TOKEN].strip()
 
-        if len(devices) == 1:
-            device = devices[0]
-            return self.async_create_entry(
-                title=device["label"],
-                data={**self._oauth_data, CONF_DEVICE_ID: device["deviceId"]},
-            )
+            # Validate by discovering devices
+            try:
+                devices = await self._fetch_washers(self._access_token)
+            except aiohttp.ClientResponseError as err:
+                if err.status in (401, 403):
+                    errors["base"] = "invalid_access_token"
+                else:
+                    errors["base"] = "cannot_connect"
+                devices = []
+            except Exception:
+                _LOGGER.exception("Device discovery error")
+                errors["base"] = "unknown"
+                devices = []
 
-        self._discovered = {d["deviceId"]: d["label"] for d in devices}
-        return await self.async_step_device()
+            if not errors:
+                self._discovered = {d["deviceId"]: d["label"] for d in devices}
+                return await self.async_step_device()
+
+        return self.async_show_form(
+            step_id="tokens",
+            data_schema=vol.Schema({
+                vol.Required(_CONF_ACCESS_TOKEN):  str,
+                vol.Required(_CONF_REFRESH_TOKEN): str,
+            }),
+            description_placeholders={
+                "hint": "Get these from Insomnia by exchanging an auth code manually."
+            },
+            errors=errors,
+        )
+
+    # ── Step 3: pick device ───────────────────────────────────────────────────
 
     async def async_step_device(
         self, user_input: dict[str, Any] | None = None
@@ -211,9 +203,31 @@ class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
         if user_input is not None:
             device_id = user_input[CONF_DEVICE_ID].strip()
             label = self._discovered.get(device_id, "Samsung Washer")
+
+            # Register implementation so OAuth2Session can refresh later
+            async_register_implementation(
+                self.hass,
+                DOMAIN,
+                SmartThingsOAuth2Implementation(
+                    self.hass, self._client_id, self._client_secret
+                ),
+            )
+
             return self.async_create_entry(
                 title=label,
-                data={**self._oauth_data, CONF_DEVICE_ID: device_id},
+                data={
+                    CONF_CLIENT_ID:     self._client_id,
+                    CONF_CLIENT_SECRET: self._client_secret,
+                    CONF_DEVICE_ID:     device_id,
+                    "auth_implementation": DOMAIN,
+                    "token": {
+                        "access_token":  self._access_token,
+                        "refresh_token": self._refresh_token,
+                        "token_type":    "Bearer",
+                        "expires_in":    86399,
+                        "expires_at":    time.time() + 86399,
+                    },
+                },
             )
 
         if self._discovered:
@@ -226,16 +240,26 @@ class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
 
         return self.async_show_form(step_id="device", data_schema=schema)
 
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
     @staticmethod
     async def _fetch_washers(token: str) -> list[dict]:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                "https://api.smartthings.com/v1/devices",
+                _DEVICES_URL,
                 headers={"Authorization": f"Bearer {token}"},
                 params={"capability": "washerOperatingState"},
             ) as resp:
                 resp.raise_for_status()
                 return (await resp.json()).get("items", [])
+
+    # These are required by AbstractOAuth2FlowHandler but unused (no redirect)
+    async def async_oauth_create_entry(self, data: dict) -> dict:
+        return self.async_abort(reason="oauth_error")
+
+    @property
+    def extra_authorize_data(self) -> dict:
+        return {}
 
     @staticmethod
     @callback

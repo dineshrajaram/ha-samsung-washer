@@ -2,29 +2,36 @@
   "config": {
     "step": {
       "user": {
-        "title": "Samsung Washer — SmartThings Credentials",
-        "description": "Enter the OAuth client credentials for your SmartThings app. Create one at developer.smartthings.com or via the SmartThings API.",
+        "title": "Samsung Washer — SmartThings App Credentials",
+        "description": "Enter the OAuth client credentials from your SmartThings app.",
         "data": {
-          "client_id": "OAuth Client ID",
-          "client_secret": "OAuth Client Secret"
+          "client_id": "OAuth Client ID (oauthClientId)",
+          "client_secret": "OAuth Client Secret (oauthClientSecret)"
+        }
+      },
+      "tokens": {
+        "title": "Samsung Washer — Access Tokens",
+        "description": "Paste the access token and refresh token. Get these by authorising manually in Insomnia:\n1. Open the SmartThings authorize URL in a browser\n2. Log in and approve\n3. Exchange the code in Insomnia using Basic Auth",
+        "data": {
+          "access_token": "Access Token",
+          "refresh_token": "Refresh Token"
         }
       },
       "device": {
         "title": "Select your washing machine",
-        "description": "Choose your Samsung washer, or enter the device ID manually.",
         "data": {
           "device_id": "Device ID"
         }
       }
     },
     "error": {
+      "invalid_access_token": "Access token is invalid or expired — get a fresh one.",
       "cannot_connect": "Cannot reach SmartThings API.",
       "unknown": "Unexpected error — check HA logs."
     },
     "abort": {
       "already_configured": "This device is already configured.",
-      "oauth_error": "SmartThings returned an error during authentication.",
-      "oauth_unauthorized": "Invalid OAuth credentials — check client ID and secret."
+      "oauth_error": "OAuth error."
     }
   },
   "options": {

@@ -3,7 +3,9 @@
 DOMAIN = "samsung_washer"
 
 # Config entry keys
-CONF_DEVICE_ID = "device_id"
+CONF_CLIENT_ID     = "client_id"
+CONF_CLIENT_SECRET = "client_secret"
+CONF_DEVICE_ID     = "device_id"
 
 # OAuth2 scopes required from SmartThings
 OAUTH_SCOPES = "r:devices:* w:devices:* x:devices:*"

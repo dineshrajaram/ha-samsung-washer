@@ -1,25 +1,30 @@
 {
   "config": {
     "step": {
-      "pick_implementation": {
-        "title": "Authenticate with SmartThings"
+      "user": {
+        "title": "Samsung Washer — SmartThings Credentials",
+        "description": "Enter the OAuth client credentials for your SmartThings app. Create one at developer.smartthings.com or via the SmartThings API.",
+        "data": {
+          "client_id": "OAuth Client ID",
+          "client_secret": "OAuth Client Secret"
+        }
       },
       "device": {
         "title": "Select your washing machine",
-        "description": "Choose your Samsung washer from the list, or enter the device ID manually.",
+        "description": "Choose your Samsung washer, or enter the device ID manually.",
         "data": {
           "device_id": "Device ID"
         }
       }
     },
     "error": {
-      "cannot_connect": "Cannot reach SmartThings API. Check network.",
-      "unknown": "Unexpected error. Check the HA logs."
+      "cannot_connect": "Cannot reach SmartThings API.",
+      "unknown": "Unexpected error — check HA logs."
     },
     "abort": {
       "already_configured": "This device is already configured.",
       "oauth_error": "SmartThings returned an error during authentication.",
-      "missing_configuration": "Application credentials not configured. Add them under Settings → Application Credentials."
+      "oauth_unauthorized": "Invalid OAuth credentials — check client ID and secret."
     }
   },
   "options": {

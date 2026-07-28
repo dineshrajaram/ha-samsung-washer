@@ -12,11 +12,15 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.config_entry_oauth2_flow import (
     OAuth2Session,
     async_get_config_entry_implementation,
+    async_register_implementation,
 )
 from homeassistant.helpers.device_registry import DeviceInfo
 
 from .api import SmartThingsWasherAPI
+from .config_flow import SmartThingsOAuth2Implementation
 from .const import (
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
     CONF_DEVICE_ID,
     CONF_SCAN_INTERVAL,
     CONF_DEFAULT_DRY,
@@ -68,6 +72,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Samsung Washer from a config entry."""
     device_id = entry.data[CONF_DEVICE_ID]
     opts      = entry.options
+
+    # Re-register our custom OAuth implementation so OAuth2Session can refresh tokens
+    async_register_implementation(
+        hass,
+        DOMAIN,
+        SmartThingsOAuth2Implementation(
+            hass,
+            entry.data[CONF_CLIENT_ID],
+            entry.data[CONF_CLIENT_SECRET],
+        ),
+    )
 
     implementation = await async_get_config_entry_implementation(hass, entry)
     oauth_session  = OAuth2Session(hass, entry, implementation)

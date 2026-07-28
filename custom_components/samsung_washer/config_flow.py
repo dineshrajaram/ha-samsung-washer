@@ -8,8 +8,13 @@ import aiohttp
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, OptionsFlow
-from homeassistant.core import callback
-from homeassistant.helpers.config_entry_oauth2_flow import AbstractOAuth2FlowHandler
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import aiohttp_client
+from homeassistant.helpers.config_entry_oauth2_flow import (
+    AbstractOAuth2FlowHandler,
+    AbstractOAuth2Implementation,
+    LocalOAuth2Implementation,
+)
 
 from .const import (
     CONF_DEFAULT_DRY,
@@ -35,6 +40,58 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 _BASE = "https://api.smartthings.com/v1"
+
+
+_TOKEN_URL     = "https://api.smartthings.com/oauth/token"
+_AUTHORIZE_URL = "https://api.smartthings.com/oauth/authorize"
+_REDIRECT_URI  = "https://my.home-assistant.io/redirect/oauth"
+
+
+class SmartThingsOAuth2Implementation(LocalOAuth2Implementation):
+    """
+    Custom token exchange for SmartThings.
+
+    HA's default LocalOAuth2Implementation sends client_id in BOTH the
+    Basic Auth header AND the request body. SmartThings rejects that with
+    a 401. This override sends client_id only in Basic Auth, matching what
+    a plain curl / Insomnia request does.
+    """
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client_id: str,
+        client_secret: str,
+    ) -> None:
+        super().__init__(
+            hass,
+            DOMAIN,
+            client_id,
+            client_secret,
+            _AUTHORIZE_URL,
+            _TOKEN_URL,
+        )
+
+    @property
+    def redirect_uri(self) -> str:
+        return _REDIRECT_URI
+
+    async def _async_resolve_auth_code(
+        self, code: str, redirect_uri: str
+    ) -> dict[str, Any]:
+        """Exchange auth code for tokens — client_id only in Basic Auth."""
+        session = aiohttp_client.async_get_clientsession(self.hass)
+        resp = await session.post(
+            _TOKEN_URL,
+            data={
+                "grant_type":   "authorization_code",
+                "code":         code,
+                "redirect_uri": redirect_uri,
+            },
+            auth=aiohttp.BasicAuth(self.client_id, self.client_secret),
+        )
+        resp.raise_for_status()
+        return await resp.json()
 
 
 class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):

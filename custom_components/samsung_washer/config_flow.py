@@ -74,7 +74,7 @@ class SmartThingsOAuth2Implementation(AbstractOAuth2Implementation):
     async def async_resolve_external_data(self, external_data: Any) -> dict:
         raise NotImplementedError("Direct token entry; no OAuth redirect")
 
-    async def async_refresh_token(self, token: dict) -> dict:
+    async def _async_refresh_token(self, token: dict) -> dict:
         """Refresh the access token using Basic Auth — matches Insomnia."""
         import base64
         credentials = base64.b64encode(

@@ -8,12 +8,10 @@ from typing import Any
 import aiohttp
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry, OptionsFlow
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.config_entry_oauth2_flow import (
-    AbstractOAuth2FlowHandler,
     AbstractOAuth2Implementation,
-    LocalOAuth2Implementation,
     async_register_implementation,
 )
 
@@ -109,16 +107,15 @@ _CONF_ACCESS_TOKEN  = "access_token"
 _CONF_REFRESH_TOKEN = "refresh_token"
 
 
-class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
+class SamsungWasherConfigFlow(ConfigFlow, domain=DOMAIN):
     """
     Config flow:
       Step 1  — enter client_id + client_secret
-      Step 2  — paste access_token + refresh_token (obtained from Insomnia / SmartThings)
-      Step 3  — confirm device (auto-discovered or manually entered)
+      Step 2  — paste access_token + refresh_token
+      Step 3  — confirm device (auto-discovered or manual)
     """
 
     VERSION = 1
-    DOMAIN  = DOMAIN
 
     def __init__(self) -> None:
         super().__init__()
@@ -252,14 +249,6 @@ class SamsungWasherConfigFlow(AbstractOAuth2FlowHandler, domain=DOMAIN):
             ) as resp:
                 resp.raise_for_status()
                 return (await resp.json()).get("items", [])
-
-    # These are required by AbstractOAuth2FlowHandler but unused (no redirect)
-    async def async_oauth_create_entry(self, data: dict) -> dict:
-        return self.async_abort(reason="oauth_error")
-
-    @property
-    def extra_authorize_data(self) -> dict:
-        return {}
 
     @staticmethod
     @callback

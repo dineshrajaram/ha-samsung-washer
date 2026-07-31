@@ -37,14 +37,18 @@
   "options": {
     "step": {
       "init": {
-        "title": "Samsung Washer — Options",
+        "title": "Samsung Washer — Settings",
         "data": {
           "scan_interval": "Poll interval (seconds)",
-          "default_temp": "Default wash temperature (all-in-one)",
-          "default_spin": "Default spin speed (all-in-one)",
-          "default_rinse": "Default rinse cycles (all-in-one)",
-          "default_dry_level": "Default dry level (all-in-one)"
+          "default_temp": "Default wash temperature",
+          "default_spin": "Default spin speed",
+          "default_rinse": "Default rinse cycles",
+          "default_dry_level": "Default dry level"
         }
+      },
+      "cycles": {
+        "title": "Samsung Washer — Rename Cycles",
+        "description": "Edit the display name for each cycle. The field labels show the cycle code."
       }
     }
   }

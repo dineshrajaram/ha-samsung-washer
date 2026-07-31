@@ -10,14 +10,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from . import cycles as cycles_mod
 from . import device_info
 from .const import (
-    CYCLE_DRYING_ONLY,
-    CYCLE_DRYING_ONLY_NAME,
-    CYCLE_OPTIONS,
-    CYCLE_QUICK_15_NAME,
-    CYCLE_REGULAR_WASH,
-    CYCLE_REGULAR_WASH_NAME,
     DEFAULT_DETERGENT_AMOUNT,
     DEFAULT_DRY_LEVEL,
     DEFAULT_RINSE,
@@ -103,25 +98,44 @@ class WasherCycleSelect(
     CoordinatorEntity[SamsungWasherCoordinator], RestoreEntity, SelectEntity
 ):
     """
-    Sends setWasherCycle to the machine immediately when the user picks a cycle.
-    The machine updates its defaults; a coordinator refresh then populates the
-    param selects with the new device values.
+    Cycle selector driven by named_cycles.json (+ HA option overrides).
+    Options list is dynamic — rebuilt whenever the coordinator updates.
+    Selecting a cycle stores intent locally; press Check Status to send to machine.
     """
 
     _attr_has_entity_name = True
-    _attr_name    = "Cycle"
-    _attr_icon    = "mdi:washing-machine"
-    _attr_options = CYCLE_OPTIONS
+    _attr_name  = "Cycle"
+    _attr_icon  = "mdi:washing-machine"
 
     def __init__(self, coordinator: SamsungWasherCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
-        self._attr_unique_id      = f"{entry.entry_id}_cycle"
-        self._attr_device_info    = device_info(entry)
-        self._attr_current_option = CYCLE_REGULAR_WASH_NAME
+        self._attr_unique_id   = f"{entry.entry_id}_cycle"
+        self._attr_device_info = device_info(entry)
+        self._update_options()
+        # Set default to first available cycle
+        if self._attr_options:
+            self._attr_current_option = self._attr_options[0]
+            self.coordinator.selected_cycle = self._attr_options[0]
+
+    def _update_options(self) -> None:
+        self._attr_options = [c["name"] for c in self.coordinator.named_cycles]
+
+    def _handle_coordinator_update(self) -> None:
+        # Rebuild options in case cycle names were renamed via options flow
+        old_options = list(self._attr_options or [])
+        self._update_options()
+        # If current selection no longer exists, fall back to first option
+        if self._attr_current_option not in (self._attr_options or []):
+            if self._attr_options:
+                self._attr_current_option = self._attr_options[0]
+                self.coordinator.selected_cycle = self._attr_options[0]
+        elif old_options != self._attr_options:
+            pass  # options changed (rename) but selection still valid
+        self.async_write_ha_state()
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
-        if (last := await self.async_get_last_state()) and last.state in CYCLE_OPTIONS:
+        if (last := await self.async_get_last_state()) and last.state in (self._attr_options or []):
             self._attr_current_option = last.state
             self.coordinator.selected_cycle = last.state
 
@@ -138,12 +152,8 @@ class WasherParamSelect(
     CoordinatorEntity[SamsungWasherCoordinator], RestoreEntity, SelectEntity
 ):
     """
-    Stores user intent for one wash parameter (temp/spin/dry/rinse/softener/detergent).
-
-    - Initialised from restored HA state, then device status.
-    - Auto-updates from device status whenever the machine's active cycle changes
-      (detected by comparing current_cycle on each coordinator refresh).
-    - User changes are kept locally and sent to the machine only when Start is pressed.
+    Stores user intent for one wash parameter.
+    Auto-syncs from device status when the machine's active cycle changes.
     """
 
     _attr_has_entity_name = True
@@ -181,7 +191,6 @@ class WasherParamSelect(
             setattr(self.coordinator, self._desc.coord_attr, val)
 
     def _handle_coordinator_update(self) -> None:
-        """Sync from device when the machine's active cycle changes."""
         if self.coordinator.data:
             cycle = self.coordinator.data.get("current_cycle")
             if cycle != self._last_seen_cycle:

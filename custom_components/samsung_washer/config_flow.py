@@ -260,13 +260,16 @@ class SamsungWasherConfigFlow(ConfigFlow, domain=DOMAIN):
 
 class SamsungWasherOptionsFlow(OptionsFlow):
     def __init__(self, config_entry: ConfigEntry) -> None:
-        self._entry = config_entry
+        self._entry    = config_entry
+        self._settings = {}   # holds general settings between steps
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> dict:
+        """Step 1 — general settings."""
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            self._settings = user_input
+            return await self.async_step_cycles()
 
         current = self._entry.options
         schema = vol.Schema({
@@ -287,3 +290,37 @@ class SamsungWasherOptionsFlow(OptionsFlow):
                          ): vol.In(VALID_DRY_LEVELS_AIO),
         })
         return self.async_show_form(step_id="init", data_schema=schema)
+
+    async def async_step_cycles(
+        self, user_input: dict[str, Any] | None = None
+    ) -> dict:
+        """Step 2 — rename cycles."""
+        from . import cycles as cycles_mod
+
+        all_cycles = cycles_mod.load(self._entry.options)
+        overrides  = self._entry.options.get("cycle_names", {})
+
+        if user_input is not None:
+            # Rebuild cycle_names dict from flat form values
+            cycle_names = {
+                c["code"]: user_input.get(f"cycle_{c['code']}", c["name"])
+                for c in all_cycles
+            }
+            return self.async_create_entry(
+                title="",
+                data={**self._settings, "cycle_names": cycle_names},
+            )
+
+        # Build one text field per cycle: key = "cycle_Course_XX", default = current name
+        fields = {
+            vol.Optional(
+                f"cycle_{c['code']}",
+                default=overrides.get(c["code"], c["name"]),
+            ): str
+            for c in all_cycles
+        }
+        return self.async_show_form(
+            step_id="cycles",
+            data_schema=vol.Schema(fields),
+        )
+

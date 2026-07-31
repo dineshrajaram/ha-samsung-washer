@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import CannotConnect, SmartThingsWasherAPI
+from . import cycles as cycles_mod
 from .const import (
     CYCLE_REGULAR_WASH_NAME,
     DEFAULT_DETERGENT_AMOUNT,
@@ -43,14 +44,22 @@ class SamsungWasherCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.api = api
         self.device_label = device_label
 
-        # Stores user intent for next Start — local state, not from device.
-        self.selected_cycle:            str = CYCLE_REGULAR_WASH_NAME
+        # Named cycle list — loaded from named_cycles.json + options overrides
+        self.named_cycles: list[dict] = cycles_mod.load()
+
+        # Default selected cycle = first named cycle (or fallback)
+        _default_cycle = self.named_cycles[0]["name"] if self.named_cycles else "Regular wash"
+        self.selected_cycle:            str = _default_cycle
         self.selected_dry_level:        str = DEFAULT_DRY_LEVEL
         self.selected_temp:             str = DEFAULT_TEMP
         self.selected_spin:             str = DEFAULT_SPIN
         self.selected_rinse:            str = DEFAULT_RINSE
         self.selected_softener_amount:  str = DEFAULT_SOFTENER_AMOUNT
         self.selected_detergent_amount: str = DEFAULT_DETERGENT_AMOUNT
+
+    def reload_named_cycles(self, options: dict) -> None:
+        """Re-apply option overrides to named cycle names."""
+        self.named_cycles = cycles_mod.load(options)
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:

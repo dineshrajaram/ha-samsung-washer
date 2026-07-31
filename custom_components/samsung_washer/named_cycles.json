@@ -1,0 +1,1119 @@
+{
+  "cycles": [
+    {
+      "code": "Course_1C",
+      "name": "Eco 40-60",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "none",
+          "options": []
+        },
+        "spin_level": {
+          "default": "1400",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_1B",
+      "name": "Cotton",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40",
+            "60",
+            "90"
+          ]
+        },
+        "spin_level": {
+          "default": "800",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_1E",
+      "name": "15\" Quick Wash",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "1200",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "3",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_1D",
+      "name": "Super Speed",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "1400",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_1F",
+      "name": "Super Eco Wash",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "cold",
+          "options": [
+            "cold"
+          ]
+        },
+        "spin_level": {
+          "default": "1200",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_25",
+      "name": "Synthetics",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40",
+            "60"
+          ]
+        },
+        "spin_level": {
+          "default": "1200",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_26",
+      "name": "Delicates",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "30",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "400",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_33",
+      "name": "Towels",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "60",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40",
+            "60",
+            "90"
+          ]
+        },
+        "spin_level": {
+          "default": "1400",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "3",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_24",
+      "name": "Bedding",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "30",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "800",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_32",
+      "name": "Shirts",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "30",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40",
+            "60"
+          ]
+        },
+        "spin_level": {
+          "default": "800",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_20",
+      "name": "Hygiene Steam",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "60",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40",
+            "60",
+            "90"
+          ]
+        },
+        "spin_level": {
+          "default": "1400",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "4",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_22",
+      "name": "Wool",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "800",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_23",
+      "name": "Outdoor",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "30",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "1200",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "3",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_2F",
+      "name": "Activewear",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "30",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "800",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "3",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_21",
+      "name": "ColorsColors",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "1200",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "4",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_2D",
+      "name": "SiSilent Wash",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40"
+          ]
+        },
+        "spin_level": {
+          "default": "800",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_30",
+      "name": "CloudyCloudy day",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "40",
+          "options": [
+            "cold",
+            "20",
+            "30",
+            "40",
+            "60"
+          ]
+        },
+        "spin_level": {
+          "default": "1000",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_27",
+      "name": "Rinse+Spin",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "none",
+          "options": []
+        },
+        "spin_level": {
+          "default": "rinseHold",
+          "options": [
+            "rinseHold",
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "0",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_28",
+      "name": "DDrain/Spin",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "none",
+          "options": []
+        },
+        "spin_level": {
+          "default": "1400",
+          "options": [
+            "noSpin",
+            "400",
+            "800",
+            "1000",
+            "1200",
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "0",
+          "options": []
+        },
+        "dry_level": {
+          "default": "none",
+          "options": [
+            "none",
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_36",
+      "name": "Wash+Dry",
+      "cycle_type": "allInOne",
+      "options": {
+        "water_temp": {
+          "default": "none",
+          "options": []
+        },
+        "spin_level": {
+          "default": "1400",
+          "options": [
+            "1400"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        "dry_level": {
+          "default": "cupboard",
+          "options": [
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      }
+    },
+    {
+      "code": "Course_38",
+      "name": "Cotton Dry",
+      "cycle_type": "dryingOnly",
+      "options": {
+        "water_temp": {
+          "default": "none",
+          "options": []
+        },
+        "spin_level": {
+          "default": "rinseHold",
+          "options": []
+        },
+        "rinse_cycles": {
+          "default": "0",
+          "options": []
+        },
+        "dry_level": {
+          "default": "cupboard",
+          "options": [
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_39",
+      "name": "Synthetics Dry",
+      "cycle_type": "dryingOnly",
+      "options": {
+        "water_temp": {
+          "default": "none",
+          "options": []
+        },
+        "spin_level": {
+          "default": "rinseHold",
+          "options": []
+        },
+        "rinse_cycles": {
+          "default": "0",
+          "options": []
+        },
+        "dry_level": {
+          "default": "cupboard",
+          "options": [
+            "cupboard",
+            "30",
+            "60",
+            "90"
+          ]
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_37",
+      "name": "Air Wash",
+      "cycle_type": "dryingOnly",
+      "options": {
+        "water_temp": {
+          "default": "none",
+          "options": []
+        },
+        "spin_level": {
+          "default": "rinseHold",
+          "options": []
+        },
+        "rinse_cycles": {
+          "default": "0",
+          "options": []
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    },
+    {
+      "code": "Course_29",
+      "name": "Drum Clean+",
+      "cycle_type": "washingOnly",
+      "options": {
+        "water_temp": {
+          "default": "70",
+          "options": [
+            "70"
+          ]
+        },
+        "spin_level": {
+          "default": "1200",
+          "options": [
+            "1200"
+          ]
+        },
+        "rinse_cycles": {
+          "default": "2",
+          "options": [
+            "2"
+          ]
+        },
+        "dry_level": {
+          "default": "none",
+          "options": []
+        },
+        "bubble_soak": {
+          "default": "off",
+          "options": []
+        }
+      }
+    }
+  ]
+}

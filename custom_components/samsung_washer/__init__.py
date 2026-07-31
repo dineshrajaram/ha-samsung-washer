@@ -27,9 +27,9 @@ from .const import (
     CONF_DEFAULT_RINSE,
     CONF_DEFAULT_SPIN,
     CONF_DEFAULT_TEMP,
-    CYCLE_ALL_IN_ONE_NAME,
     CYCLE_DRYING_ONLY_NAME,
     CYCLE_QUICK_15_NAME,
+    CYCLE_REGULAR_WASH_NAME,
     DEFAULT_DRY_LEVEL,
     DEFAULT_RINSE,
     DEFAULT_SCAN_INTERVAL,
@@ -54,7 +54,7 @@ SERVICE_STOP        = "stop"
 SERVICE_PAUSE       = "pause"
 
 _START_SCHEMA = vol.Schema({
-    vol.Optional("cycle"):     vol.In([CYCLE_ALL_IN_ONE_NAME, CYCLE_DRYING_ONLY_NAME, CYCLE_QUICK_15_NAME]),
+    vol.Optional("cycle"):     vol.In([CYCLE_REGULAR_WASH_NAME, CYCLE_DRYING_ONLY_NAME, CYCLE_QUICK_15_NAME]),
     vol.Optional("temp"):      vol.In(VALID_TEMPS),
     vol.Optional("spin"):      vol.In(VALID_SPINS),
     vol.Optional("rinse"):     vol.In(VALID_RINSES),
@@ -115,8 +115,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         rinse = call.data.get("rinse", entry.options.get(CONF_DEFAULT_RINSE, DEFAULT_RINSE))
         dry   = call.data.get("dry_level", entry.options.get(CONF_DEFAULT_DRY, DEFAULT_DRY_LEVEL))
 
-        if cycle == CYCLE_ALL_IN_ONE_NAME:
-            await coord.api.start_all_in_one(temp, spin, rinse, dry)
+        if cycle == CYCLE_REGULAR_WASH_NAME:
+            await coord.api.start_regular_wash(temp, spin, rinse, dry)
         elif cycle == CYCLE_DRYING_ONLY_NAME:
             await coord.api.start_drying_only(dry if dry in VALID_DRY_LEVELS_DRY else "cupboard")
         elif cycle == CYCLE_QUICK_15_NAME:

@@ -9,8 +9,8 @@ import aiohttp
 from homeassistant.helpers.config_entry_oauth2_flow import OAuth2Session
 
 from .const import (
-    CYCLE_ALL_IN_ONE,
     CYCLE_DRYING_ONLY,
+    CYCLE_REGULAR_WASH,
     DEFAULT_DRY_LEVEL,
     DEFAULT_RINSE,
     DEFAULT_SPIN,
@@ -107,21 +107,31 @@ class SmartThingsWasherAPI:
     async def pause(self) -> None:
         await self._post([self._cmd("samsungce.washerOperatingState", "pause")])
 
+    async def set_cycle(self, cycle_code: str) -> None:
+        """Set wash program without starting — machine updates its defaults."""
+        await self._post([
+            self._cmd("samsungce.washerCycle", "setWasherCycle", [cycle_code])
+        ])
+
     # ── Cycle sequences ───────────────────────────────────────────────────────
 
-    async def start_all_in_one(
+    async def start_regular_wash(
         self,
-        water_temp: str = DEFAULT_TEMP,
-        spin_level: str = DEFAULT_SPIN,
-        rinse_cycles: str = DEFAULT_RINSE,
-        dry_level: str = DEFAULT_DRY_LEVEL,
+        water_temp:       str = DEFAULT_TEMP,
+        spin_level:       str = DEFAULT_SPIN,
+        rinse_cycles:     str = DEFAULT_RINSE,
+        dry_level:        str = DEFAULT_DRY_LEVEL,
+        softener_amount:  str = "standard",
+        detergent_amount: str = "standard",
     ) -> None:
+        """Regular wash (Cotton Course_20) with full parameter control."""
         _LOGGER.debug(
-            "all-in-one: temp=%s spin=%s rinse=%s dry=%s",
+            "regular-wash: temp=%s spin=%s rinse=%s dry=%s softener=%s detergent=%s",
             water_temp, spin_level, rinse_cycles, dry_level,
+            softener_amount, detergent_amount,
         )
         await self._post([
-            self._cmd("samsungce.washerCycle", "setWasherCycle", [CYCLE_ALL_IN_ONE])
+            self._cmd("samsungce.washerCycle", "setWasherCycle", [CYCLE_REGULAR_WASH])
         ])
         await asyncio.sleep(1)
         await self._post([
@@ -129,9 +139,14 @@ class SmartThingsWasherAPI:
             self._cmd("custom.washerSpinLevel",        "setWasherSpinLevel",        [spin_level]),
             self._cmd("custom.washerRinseCycles",      "setWasherRinseCycles",      [rinse_cycles]),
             self._cmd("custom.dryerDryLevel",          "setDryerDryLevel",          [dry_level]),
+            self._cmd("samsungce.autoDispenseSoftener",  "setDispenseAmount", [softener_amount]),
+            self._cmd("samsungce.autoDispenseDetergent", "setDispenseAmount", [detergent_amount]),
         ])
         await asyncio.sleep(1)
         await self._start()
+
+    # Alias for backward compatibility
+    start_all_in_one = start_regular_wash
 
     async def start_drying_only(self, dry_level: str = "cupboard") -> None:
         _LOGGER.debug("drying-only: level=%s", dry_level)

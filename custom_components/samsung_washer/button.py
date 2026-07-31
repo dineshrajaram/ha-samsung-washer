@@ -10,17 +10,11 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import device_info
 from .const import (
-    CONF_DEFAULT_DRY,
-    CONF_DEFAULT_RINSE,
-    CONF_DEFAULT_SPIN,
-    CONF_DEFAULT_TEMP,
-    CYCLE_ALL_IN_ONE_NAME,
+    CYCLE_DRYING_ONLY,
     CYCLE_DRYING_ONLY_NAME,
     CYCLE_QUICK_15_NAME,
-    DEFAULT_DRY_LEVEL,
-    DEFAULT_RINSE,
-    DEFAULT_SPIN,
-    DEFAULT_TEMP,
+    CYCLE_REGULAR_WASH,
+    CYCLE_REGULAR_WASH_NAME,
     DOMAIN,
     VALID_DRY_LEVELS_DRY,
 )
@@ -51,6 +45,12 @@ BUTTON_DESCRIPTIONS: tuple[WasherButtonDescription, ...] = (
         icon="mdi:pause-circle-outline",
         action="pause",
     ),
+    WasherButtonDescription(
+        key="check_status",
+        name="Check Status",
+        icon="mdi:refresh-circle",
+        action="check_status",
+    ),
 )
 
 
@@ -66,9 +66,6 @@ async def async_setup_entry(
 
 
 class WasherButton(ButtonEntity):
-    """A button that sends a command to the washer."""
-
-    entity_description: WasherButtonDescription
     _attr_has_entity_name = True
 
     def __init__(
@@ -80,25 +77,33 @@ class WasherButton(ButtonEntity):
         self._coordinator = coordinator
         self._entry = entry
         self.entity_description = description
-        self._attr_unique_id = f"{entry.entry_id}_{description.key}"
+        self._attr_unique_id   = f"{entry.entry_id}_{description.key}"
         self._attr_device_info = device_info(entry)
 
     async def async_press(self) -> None:
-        """Handle button press."""
-        api  = self._coordinator.api
-        opts = self._entry.options
+        api   = self._coordinator.api
+        coord = self._coordinator
 
         if self.entity_description.action == "start":
-            cycle = self._coordinator.selected_cycle
-            temp  = opts.get(CONF_DEFAULT_TEMP, DEFAULT_TEMP)
-            spin  = opts.get(CONF_DEFAULT_SPIN, DEFAULT_SPIN)
-            rinse = opts.get(CONF_DEFAULT_RINSE, DEFAULT_RINSE)
-            dry   = opts.get(CONF_DEFAULT_DRY, DEFAULT_DRY_LEVEL)
+            cycle = coord.selected_cycle
 
-            if cycle == CYCLE_ALL_IN_ONE_NAME:
-                await api.start_all_in_one(temp, spin, rinse, dry)
+            if cycle == CYCLE_REGULAR_WASH_NAME:
+                await api.start_regular_wash(
+                    water_temp=coord.selected_temp,
+                    spin_level=coord.selected_spin,
+                    rinse_cycles=coord.selected_rinse,
+                    dry_level=coord.selected_dry_level,
+                    softener_amount=coord.selected_softener_amount,
+                    detergent_amount=coord.selected_detergent_amount,
+                )
+
             elif cycle == CYCLE_DRYING_ONLY_NAME:
-                await api.start_drying_only(dry if dry in VALID_DRY_LEVELS_DRY else "cupboard")
+                # "none" means no drying — fall back to cupboard for drying-only
+                dry = coord.selected_dry_level
+                if dry not in VALID_DRY_LEVELS_DRY:
+                    dry = "cupboard"
+                await api.start_drying_only(dry_level=dry)
+
             elif cycle == CYCLE_QUICK_15_NAME:
                 await api.start_quick_15()
 
@@ -107,5 +112,14 @@ class WasherButton(ButtonEntity):
 
         elif self.entity_description.action == "pause":
             await api.pause()
+
+        elif self.entity_description.action == "check_status":
+            # Send selected cycle to machine, then refresh to pull updated defaults
+            cycle = coord.selected_cycle
+            if cycle == CYCLE_REGULAR_WASH_NAME:
+                await api.set_cycle(CYCLE_REGULAR_WASH)
+            elif cycle == CYCLE_DRYING_ONLY_NAME:
+                await api.set_cycle(CYCLE_DRYING_ONLY)
+            # Quick 15 has no cycle code — nothing to set
 
         await self._coordinator.async_request_refresh()

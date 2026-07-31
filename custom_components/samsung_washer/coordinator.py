@@ -9,7 +9,17 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import CannotConnect, SmartThingsWasherAPI
-from .const import CYCLE_ALL_IN_ONE_NAME, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CYCLE_REGULAR_WASH_NAME,
+    DEFAULT_DETERGENT_AMOUNT,
+    DEFAULT_DRY_LEVEL,
+    DEFAULT_RINSE,
+    DEFAULT_SCAN_INTERVAL,
+    DEFAULT_SOFTENER_AMOUNT,
+    DEFAULT_SPIN,
+    DEFAULT_TEMP,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,9 +43,14 @@ class SamsungWasherCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.api = api
         self.device_label = device_label
 
-        # Stores the user's intended cycle (local state, not from device).
-        # Read by button.start_all; written by select entity.
-        self.selected_cycle: str = CYCLE_ALL_IN_ONE_NAME
+        # Stores user intent for next Start — local state, not from device.
+        self.selected_cycle:            str = CYCLE_REGULAR_WASH_NAME
+        self.selected_dry_level:        str = DEFAULT_DRY_LEVEL
+        self.selected_temp:             str = DEFAULT_TEMP
+        self.selected_spin:             str = DEFAULT_SPIN
+        self.selected_rinse:            str = DEFAULT_RINSE
+        self.selected_softener_amount:  str = DEFAULT_SOFTENER_AMOUNT
+        self.selected_detergent_amount: str = DEFAULT_DETERGENT_AMOUNT
 
     async def _async_update_data(self) -> dict[str, Any]:
         try:
@@ -88,6 +103,9 @@ class SamsungWasherCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "dry_level":            v("custom.dryerDryLevel", "dryerDryLevel"),
             # Control
             "remote_enabled":       v("remoteControlStatus", "remoteControlEnabled"),
+            # Dispense amounts (auto-dispense)
+            "softener_amount":      v("samsungce.autoDispenseSoftener",  "amount"),
+            "detergent_amount":     v("samsungce.autoDispenseDetergent", "amount"),
             # HCA mode (quick wash lives here)
             "hca_mode":             hca.get("hca.washerMode", {}).get("mode", {}).get("value"),
         }

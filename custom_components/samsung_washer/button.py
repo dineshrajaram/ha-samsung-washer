@@ -8,9 +8,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from . import cycles as cycles_mod
 from . import device_info
-from .const import DOMAIN, VALID_DRY_LEVELS_DRY
+from .const import DOMAIN
 from .coordinator import SamsungWasherCoordinator
 
 
@@ -68,46 +67,17 @@ class WasherButton(ButtonEntity):
         description: WasherButtonDescription,
     ) -> None:
         self._coordinator = coordinator
-        self._entry       = entry
         self.entity_description = description
         self._attr_unique_id   = f"{entry.entry_id}_{description.key}"
         self._attr_device_info = device_info(entry)
 
-    def _resolve_cycle(self) -> tuple[str | None, str | None]:
-        """Return (cycle_code, cycle_type) for the currently selected cycle name."""
-        name  = self._coordinator.selected_cycle
-        entry = cycles_mod.by_name(name, self._entry.options)
-        if entry:
-            return entry["code"], entry["cycle_type"]
-        return None, None
-
     async def async_press(self) -> None:
-        api   = self._coordinator.api
-        coord = self._coordinator
+        api = self._coordinator.api
 
         if self.entity_description.action == "start":
-            code, cycle_type = self._resolve_cycle()
-            if code is None:
-                return
-
-            if cycle_type == "dryingOnly":
-                dry = coord.selected_dry_level
-                if dry not in VALID_DRY_LEVELS_DRY:
-                    dry = "cupboard"
-                await api.start_drying_only(dry_level=dry)
-
-            elif cycle_type in ("allInOne", "washingOnly"):
-                await api.start_regular_wash(
-                    water_temp=coord.selected_temp,
-                    spin_level=coord.selected_spin,
-                    rinse_cycles=coord.selected_rinse,
-                    dry_level=coord.selected_dry_level,
-                    softener_amount=coord.selected_softener_amount,
-                    detergent_amount=coord.selected_detergent_amount,
-                )
-            else:
-                # Quick wash / other — use hca.washerMode
-                await api.start_quick_15()
+            # Cycle + settings already sent to machine via selects.
+            # Just send the start command.
+            await api._start()
 
         elif self.entity_description.action == "stop":
             await api.stop()
@@ -116,8 +86,7 @@ class WasherButton(ButtonEntity):
             await api.pause()
 
         elif self.entity_description.action == "check_status":
-            code, _ = self._resolve_cycle()
-            if code:
-                await api.set_cycle(code)
+            # Force-refresh sensors from device.
+            pass
 
         await self._coordinator.async_request_refresh()

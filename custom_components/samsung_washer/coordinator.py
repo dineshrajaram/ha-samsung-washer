@@ -68,7 +68,18 @@ class SamsungWasherCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             raise UpdateFailed(f"Cannot reach SmartThings: {err}") from err
         except Exception as err:
             raise UpdateFailed(f"Unexpected error: {err}") from err
-        return self._parse(raw)
+
+        data = self._parse(raw)
+
+        # Resolve cycle code → display name from named_cycles.json
+        code = data.get("current_cycle")   # e.g. "Course_20"
+        if code:
+            entry = next((c for c in self.named_cycles if c["code"] == code), None)
+            data["current_cycle_name"] = entry["name"] if entry else code
+        else:
+            data["current_cycle_name"] = None
+
+        return data
 
     @staticmethod
     def _parse(raw: dict) -> dict[str, Any]:
@@ -100,6 +111,7 @@ class SamsungWasherCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "progress":             v("samsungce.washerOperatingState", "progress"),
             "remaining_time":       v("samsungce.washerOperatingState", "remainingTime"),
             "remaining_time_str":   v("samsungce.washerOperatingState", "remainingTimeStr"),
+            "operation_time":       v("samsungce.washerOperatingState", "operationTime"),
             "washing_progress":     v("samsungce.washerOperatingState", "washingProgress"),
             "drying_progress":      v("samsungce.washerOperatingState", "dryingProgress"),
             # Cycle

@@ -107,6 +107,16 @@ class SmartThingsWasherAPI:
     async def pause(self) -> None:
         await self._post([self._cmd("samsungce.washerOperatingState", "pause")])
 
+    async def set_softener_amount(self, amount: str) -> None:
+        await self._post([
+            self._cmd("samsungce.autoDispenseSoftener", "setDispenseAmount", [amount])
+        ])
+
+    async def set_detergent_amount(self, amount: str) -> None:
+        await self._post([
+            self._cmd("samsungce.autoDispenseDetergent", "setDispenseAmount", [amount])
+        ])
+
     async def set_cycle(self, cycle_code: str) -> None:
         """Set wash program without starting — machine updates its defaults."""
         await self._post([

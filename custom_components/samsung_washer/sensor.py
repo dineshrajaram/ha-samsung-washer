@@ -1,9 +1,14 @@
-"""Sensor entities for Samsung Washer."""
+"""Sensor and binary_sensor entities for Samsung Washer."""
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
 
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+    BinarySensorEntityDescription,
+)
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
@@ -25,9 +30,8 @@ class WasherSensorDescription(SensorEntityDescription):
     data_key: str = ""
 
 
-# ── Sensor definitions ────────────────────────────────────────────────────────
-
 SENSOR_DESCRIPTIONS: tuple[WasherSensorDescription, ...] = (
+    # ── Machine state ─────────────────────────────────────────────────────────
     WasherSensorDescription(
         key="machine_state",
         data_key="machine_state",
@@ -62,18 +66,21 @@ SENSOR_DESCRIPTIONS: tuple[WasherSensorDescription, ...] = (
         name="Remaining Time (HH:MM)",
         icon="mdi:timer-outline",
     ),
+    # ── Cycle ─────────────────────────────────────────────────────────────────
     WasherSensorDescription(
         key="current_cycle",
-        data_key="current_cycle",
+        data_key="current_cycle_name",   # display name from named_cycles.json
         name="Current Cycle",
         icon="mdi:refresh-circle",
     ),
     WasherSensorDescription(
-        key="cycle_type",
-        data_key="cycle_type",
-        name="Cycle Type",
-        icon="mdi:format-list-bulleted-type",
+        key="cycle_code",
+        data_key="current_cycle",        # raw Course_XX code
+        name="Cycle Code",
+        icon="mdi:code-tags",
+        entity_registry_enabled_default=False,   # hidden by default, visible in dev tools
     ),
+    # ── Current settings (read-only — set by machine from cycle) ─────────────
     WasherSensorDescription(
         key="water_temp",
         data_key="water_temp",
@@ -98,10 +105,21 @@ SENSOR_DESCRIPTIONS: tuple[WasherSensorDescription, ...] = (
         name="Dry Level",
         icon="mdi:air-humidifier",
     ),
+    # ── Dispense ──────────────────────────────────────────────────────────────
+    WasherSensorDescription(
+        key="softener_amount",
+        data_key="softener_amount",
+        name="Softener Amount",
+        icon="mdi:bottle-tonic",
+    ),
+    WasherSensorDescription(
+        key="detergent_amount",
+        data_key="detergent_amount",
+        name="Detergent Amount",
+        icon="mdi:bottle-tonic-outline",
+    ),
 )
 
-
-# ── Setup ─────────────────────────────────────────────────────────────────────
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -114,11 +132,7 @@ async def async_setup_entry(
     ])
 
 
-# ── Entity ────────────────────────────────────────────────────────────────────
-
 class WasherSensor(CoordinatorEntity[SamsungWasherCoordinator], SensorEntity):
-    """A sensor that reads from the coordinator's parsed data."""
-
     entity_description: WasherSensorDescription
     _attr_has_entity_name = True
 
@@ -130,7 +144,7 @@ class WasherSensor(CoordinatorEntity[SamsungWasherCoordinator], SensorEntity):
     ) -> None:
         super().__init__(coordinator)
         self.entity_description = description
-        self._attr_unique_id = f"{entry.entry_id}_{description.key}"
+        self._attr_unique_id   = f"{entry.entry_id}_{description.key}"
         self._attr_device_info = device_info(entry)
 
     @property
